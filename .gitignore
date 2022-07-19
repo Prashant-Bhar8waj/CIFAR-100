@@ -1,0 +1,10 @@
+tmp.py
+.nfs*
+*.ipynb
+*.pyc
+.DS_Store
+*.pth
+**/__pycache__/**
+.vscode
+
+
