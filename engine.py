@@ -1,6 +1,7 @@
 import torch
 import tqdm
 
+
 def train_one_epoch(model, optimizer, scheduler, criterion, dataloader, device):
     model.train()
 
@@ -24,19 +25,21 @@ def train_one_epoch(model, optimizer, scheduler, criterion, dataloader, device):
 
         total += batch_size
         running_loss += loss.item() * batch_size
-        pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+        pred = output.argmax(
+            dim=1, keepdim=True
+        )  # get the index of the max log-probability
         correct += pred.eq(target.view_as(pred)).sum().item()
 
         epoch_loss = running_loss / total
         acc = correct / total
 
-        bar.set_postfix(Loss=epoch_loss, Accuracy=acc*100)
-    
-    return epoch_loss, acc
+        bar.set_postfix(Loss=epoch_loss, Accuracy=acc * 100)
+
+    return {"loss": epoch_loss, "accuracy": acc}
 
 
 @torch.no_grad()
-def evaluate(model, criterion, dataloader, device):
+def evaluate_one_epoch(model, criterion, dataloader, device):
     model.eval()
 
     total = 0
@@ -51,8 +54,10 @@ def evaluate(model, criterion, dataloader, device):
         loss = criterion(output, target)
 
         total += batch_size
-        running_loss += loss.item() * batch_size        
-        pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+        running_loss += loss.item() * batch_size
+        pred = output.argmax(
+            dim=1, keepdim=True
+        )  # get the index of the max log-probability
         correct += pred.eq(target.view_as(pred)).sum().item()
 
         epoch_loss = running_loss / total
@@ -62,7 +67,4 @@ def evaluate(model, criterion, dataloader, device):
     acc = correct / total
 
     print("Validation Loss: {:.4f} Accuracy: {:.2f}%".format(epoch_loss, acc * 100))
-    return epoch_loss, acc
-
-
-
+    return {"loss": epoch_loss, "accuracy": acc}
