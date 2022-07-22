@@ -6,5 +6,6 @@ tmp.py
 *.pth
 **/__pycache__/**
 .vscode
-
+dataset/cifar-100-python
+*gz
 
