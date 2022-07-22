@@ -20,7 +20,7 @@ def download_data(path):
 
 
 class LoadDataset(Dataset):
-    """Torch Dataset instance for loadinf dataset and transforming it"""
+    """Torch Dataset instance for loading dataset"""
 
     def __init__(self, data, transform=False):
         self.data = data
@@ -59,7 +59,7 @@ def get_those_loaders(train_transforms, test_transforms, bs, download_path="data
         LoadDataset(trainset, train_transforms),
         batch_size=bs,
         shuffle=True,
-        #num_workers=2,
+        # num_workers=2,
     )
     test_loader = DataLoader(
         LoadDataset(testset, test_transforms),
