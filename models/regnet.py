@@ -1,19 +1,18 @@
 import torch
 import torch.nn as nn
-
 from torchvision import models
 
 
-class regnet(nn.Module):
+class RegNet(nn.Module):
     def __init__(self, nc):
-        super(regnet, self).__init__()
+        super(RegNet, self).__init__()
 
         self.model = models.regnet_y_400mf(pretrained=True)
         num_ftrs = self.model.fc.in_features
 
         self.model.fc = nn.Linear(num_ftrs, nc)
-        
-    def forward(self, x):        
+
+    def forward(self, x):
         out = self.model(x)
 
-        return 
+        return out
