@@ -2,6 +2,7 @@ import numpy as np
 
 from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets
+import torch
 
 
 def download_data(path):
@@ -35,6 +36,9 @@ class LoadDataset(Dataset):
         if self.aug:
             image = self.aug(image=np.array(image))["image"]
 
+        else:
+            image = torch.tensor(np.array(image))
+
         return image, label
 
 
@@ -55,13 +59,13 @@ def get_those_loaders(train_transforms, test_transforms, bs, download_path="data
         LoadDataset(trainset, train_transforms),
         batch_size=bs,
         shuffle=True,
-        num_workers=2,
+        #num_workers=2,
     )
     test_loader = DataLoader(
         LoadDataset(testset, test_transforms),
         batch_size=bs,
         shuffle=False,
-        num_workers=1,
+        # num_workers=1,
     )
 
     print("Train & Test Loaders Created")
