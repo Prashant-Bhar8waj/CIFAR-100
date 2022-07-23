@@ -1,8 +1,8 @@
+import albumentations
 import numpy as np
-
-from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets
 import torch
+from torch.utils.data import DataLoader, Dataset
+from torchvision import datasets, transforms
 
 
 def download_data(path):
@@ -33,21 +33,20 @@ class LoadDataset(Dataset):
         image, label = self.data[i]
 
         # apply augmentation only for training
-        if self.aug:
-            image = self.aug(image=np.array(image))["image"]
-
-        else:
-            image = torch.tensor(np.array(image))
+        if isinstance(self.aug, albumentations.Compose):
+            image = self.aug(image=np.array(image.convert("RGB")))["image"]
+        elif isinstance(self.aug, transforms.Compose):
+            image = self.aug(image.convert("RGB"))
 
         return image, label
 
 
-def get_those_loaders(train_transforms, test_transforms, bs, download_path="dataset"):
+def get_those_loaders(train_transforms, test_transforms, cfg, download_path="dataset"):
     """Generate Torch instance for Train and Test data loaders
     Args:
         train_transforms (albumentations compose class): training tansformations to be applied over images
         test_transforms (albumentations compose class): testing tansformations to be applied over images
-        bs (int): Batch size to be used
+        cfg (easydict): Batch size, pin memory, num workers to be used
         download_path (str): download path for dataset. Defaults to '/content/data'. (For Google Colab)
     Returns:
         torch instace: train and test data loaders
@@ -57,15 +56,17 @@ def get_those_loaders(train_transforms, test_transforms, bs, download_path="data
 
     train_loader = DataLoader(
         LoadDataset(trainset, train_transforms),
-        batch_size=bs,
+        batch_size=cfg.bs,
         shuffle=True,
-        # num_workers=2,
+        num_workers=cfg.num_workers,
+        pin_memory=cfg.pin_memory,
     )
     test_loader = DataLoader(
         LoadDataset(testset, test_transforms),
-        batch_size=bs,
+        batch_size=cfg.bs,
         shuffle=False,
-        # num_workers=1,
+        num_workers=cfg.num_workers,
+        pin_memory=cfg.pin_memory,
     )
 
     print("Train & Test Loaders Created")
