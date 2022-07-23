@@ -39,3 +39,8 @@ def datastats(loader):
     print("The std of dataset : ", std)
     return mean, std
 
+
+def log_history(history, path):
+    with open(path, "a+") as f:
+        f.write(json.dumps(history, indent=4))
+
