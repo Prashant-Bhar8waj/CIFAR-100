@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 lr_scheduler = optim.lr_scheduler.StepLR(optimizer, cfg.lr_drop)
             if cfg.lr_scheduler == "cosine_annealing":
                 lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(
-                    optimizer, T_max=cfg.T_max
+                    optimizer, T_max=cfg.T_max, eta_min=cfg.min_lr
                 )
             else:
                 assert False, "Unknown sechduler, change training configuration"
