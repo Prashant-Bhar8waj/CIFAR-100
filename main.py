@@ -39,7 +39,7 @@ if __name__ == "__main__":
     cfg = TrainingConfigurations()
     set_seed(cfg.seed)
     cfg.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+    print("Using Device", cfg.device)
     aug = transforms.Compose([transforms.ToTensor()])
     exp_dataloader, _ = get_those_loaders(aug, aug, cfg)
     mean, std = datastats(exp_dataloader)
@@ -58,6 +58,7 @@ if __name__ == "__main__":
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
 
+    history = {}
     if args.resume:
         history = json.load(
             open(os.path.join(args.output_dir, "training_log.json"), "r")
@@ -123,7 +124,7 @@ if __name__ == "__main__":
         st = time.time()
         best_loss = np.inf
         # epoch ------------------------------------------------------------------
-        for epoch in range(args.start_epoch, cfg.epoch + 1):
+        for epoch in range(args.start_epoch, cfg.epochs + 1):
             print("Epoch #{}".format(epoch))
 
             train_stats = train_one_epoch(

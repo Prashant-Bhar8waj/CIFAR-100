@@ -12,7 +12,7 @@ class TrainingConfigurations(EasyDict):
     optimizer = "sgd"
     learning_rate = 1e-4
     momentum = 0.92
-    weight_decay = None
+    weight_decay = 0
     lr_scheduler = "cosine_annealing"
     min_lr = 1e-6
     lr_drop = None
