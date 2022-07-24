@@ -40,7 +40,6 @@ def datastats(loader):
     return mean, std
 
 
-def log_history(history, path):
+def store_stats(history, path):
     with open(path, "a+") as f:
         f.write(json.dumps(history, indent=4))
-
