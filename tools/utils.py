@@ -41,5 +41,5 @@ def datastats(loader):
 
 
 def store_stats(history, path):
-    with open(path, "a+") as f:
+    with open(path, "w") as f:
         f.write(json.dumps(history, indent=4))

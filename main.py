@@ -75,9 +75,12 @@ if __name__ == "__main__":
         ):
             continue
         elif not args.resume or model_name not in history.keys():
-            history[model_name] = {"trian": [], "test": []}
+            history[model_name] = {"train": [], "test": []}
 
         print(f"\nInitiating training for {model_name}")
+        
+        if not os.path.exists(os.path.join(args.output_dir, model_name)):
+            os.mkdir(os.path.join(args.output_dir, model_name))
 
         model = Model(cfg.number_classes)
         model = model.to(cfg.device)
@@ -113,6 +116,10 @@ if __name__ == "__main__":
                 os.path.join(args.output_dir, model_name, f"{model_name}_last.pt"),
                 map_location="cpu",
             )
+            best_checkpoint = torch.load(
+                os.path.join(args.output_dir, model_name, f"{model_name}_best.pt"),
+                map_location="cpu",
+            )
 
             model.load_state_dict(checkpoint["model"])
             optimizer.load_state_dict(checkpoint["optimizer"])
@@ -122,7 +129,7 @@ if __name__ == "__main__":
         print(optimizer, lr_scheduler)
         print("-------------- STARTING TRAINING --------------")
         st = time.time()
-        best_loss = np.inf
+        best_loss = best_checkpoint["best_loss"] if args.resume else np.inf
         # epoch ------------------------------------------------------------------
         for epoch in range(args.start_epoch, cfg.epochs + 1):
             print("Epoch #{}".format(epoch))
@@ -160,11 +167,13 @@ if __name__ == "__main__":
                     "Validation Loss Improved (%g ---> %g)"
                     % (test_stats["loss"], best_loss)
                 )
+                best_loss = test_stats["loss"]
                 torch.save(
                     {
                         "model": model.state_dict(),
                         "optimizer": optimizer.state_dict(),
                         "lr_scheduler": lr_scheduler.state_dict(),
+                        "best_loss": best_loss,
                         "epoch": epoch,
                     },
                     os.path.join(args.output_dir, model_name, f"{model_name}_best.pt"),
