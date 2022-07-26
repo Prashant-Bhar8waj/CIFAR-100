@@ -16,5 +16,3 @@ class EfficientNetV2S(nn.Module):
         out = self.model(x)
 
         return out
-
-

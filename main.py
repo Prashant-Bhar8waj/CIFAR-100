@@ -47,8 +47,25 @@ if __name__ == "__main__":
 
     train_augs = A.Compose(
         [
-            A.RandomBrightnessContrast(p=0.5),
-            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            A.Rotate(
+                limit=5,
+                interpolation=1,
+                border_mode=4,
+                value=None,
+                mask_value=None,
+                always_apply=False,
+                p=0.5,
+            ),
+            A.Sequential(
+                [
+                    A.CropAndPad(px=4, keep_size=False),
+                    A.RandomCrop(32, 32),
+                ]
+            ),
+            A.CoarseDropout(
+                1,8,8, 1, 8, 8, fill_value=mean, mask_fill_value=None
+            ),
+            A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ]
     )
@@ -79,8 +96,8 @@ if __name__ == "__main__":
         elif not args.resume or model_name not in history.keys():
             history[model_name] = {"train": [], "test": []}
 
-        print(f"\nInitiating training for {model_name}")
-        
+        # print(f"\nInitiating training for {model_name}")
+
         if not os.path.exists(os.path.join(args.output_dir, model_name)):
             os.mkdir(os.path.join(args.output_dir, model_name))
 
@@ -104,10 +121,15 @@ if __name__ == "__main__":
         if cfg.lr_scheduler:
             if cfg.lr_scheduler == "step":
                 lr_scheduler = optim.lr_scheduler.StepLR(optimizer, cfg.lr_drop)
-            if cfg.lr_scheduler == "cosine_annealing":
+            elif cfg.lr_scheduler == "cosine_annealing":
                 lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(
                     optimizer, T_max=cfg.T_max, eta_min=cfg.min_lr
                 )
+            elif cfg.lr_scheduler == "reducelronpleatue":
+                lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                    optimizer, mode="min", patience=8, verbose=True
+                )
+
             else:
                 assert False, "Unknown sechduler, change training configuration"
         else:
@@ -129,7 +151,7 @@ if __name__ == "__main__":
             args.start_epoch = checkpoint["epoch"]
 
         print(optimizer, lr_scheduler)
-        print("-------------- STARTING TRAINING --------------")
+        print(f"\n-------------- STARTING TRAINING {model_name} --------------")
         st = time.time()
         best_loss = best_checkpoint["best_loss"] if args.resume else np.inf
         # epoch ------------------------------------------------------------------

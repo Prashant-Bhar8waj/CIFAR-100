@@ -1,19 +1,18 @@
 from easydict import EasyDict
-from torch import _pin_memory
 
 
 class TrainingConfigurations(EasyDict):
     seed = 69
     number_classes = 100
-    batch_size = 128
+    bs = 64
     num_workers = 2
     pin_memory = True
-    epochs = 10
+    epochs = 40
     optimizer = "sgd"
-    learning_rate = 1e-4
+    learning_rate = 1e-3
     momentum = 0.92
     weight_decay = 0
     lr_scheduler = "cosine_annealing"
-    min_lr = 1e-6
+    min_lr = 1e-2
     lr_drop = None
     T_max = 500

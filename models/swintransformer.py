@@ -13,5 +13,3 @@ class SwinT(nn.Module):
         out = self.model(x)
 
         return out
-
-
