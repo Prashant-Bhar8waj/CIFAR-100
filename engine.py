@@ -33,7 +33,9 @@ def train_one_epoch(model, optimizer, scheduler, criterion, dataloader, device):
         epoch_loss = running_loss / total
         acc = correct / total
 
-        bar.set_postfix(Loss=epoch_loss, Accuracy=acc * 100)
+        bar.set_postfix(
+            Loss=epoch_loss, Accuracy=acc * 100, LR=optimizer.param_groups[0]["lr"]
+        )
 
     return {"loss": epoch_loss, "accuracy": acc}
 
