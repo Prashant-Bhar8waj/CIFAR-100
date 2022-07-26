@@ -40,6 +40,7 @@ if __name__ == "__main__":
     set_seed(cfg.seed)
     cfg.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Using Device", cfg.device)
+
     aug = transforms.Compose([transforms.ToTensor()])
     exp_dataloader, _ = get_those_loaders(aug, aug, cfg)
     mean, std = datastats(exp_dataloader)
@@ -64,15 +65,16 @@ if __name__ == "__main__":
             open(os.path.join(args.output_dir, "training_log.json"), "r")
         )
 
-    total_training_time = time.time()
+    init_st = time.time()
     criterion = nn.CrossEntropyLoss()
     # model ------------------------------------------------------------------
     for model_name, Model in model_dict.items():
         if (
             args.resume
             and model_name in history.keys()
-            and history[model_name].get["completed"]
+            and history[model_name].get("completed")
         ):
+            print("Already trained skipping ", model_name)
             continue
         elif not args.resume or model_name not in history.keys():
             history[model_name] = {"train": [], "test": []}
@@ -178,6 +180,8 @@ if __name__ == "__main__":
                     },
                     os.path.join(args.output_dir, model_name, f"{model_name}_best.pt"),
                 )
+            else:
+                print("Validation loss did not improve from ", best_loss)
 
             history[model_name]["train"].append(
                 {
@@ -194,20 +198,20 @@ if __name__ == "__main__":
                 }
             )
 
-            store_stats(history, os.path.join(args.output_dir, "traning_log.json"))
+            store_stats(history, os.path.join(args.output_dir, "training_log.json"))
             # end epoch ----------------------------------------------------------------------------------------------------
 
         history[model_name]["completed"] = True
-        store_stats(history, os.path.join(args.output_dir, "traning_log.json"))
+        store_stats(history, os.path.join(args.output_dir, "training_log.json"))
 
-        print("Done training for ", model_name)
+        print("\nDone training for ", model_name)
         total_time = time.time() - st
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print("Training time {}".format(total_time_str))
 
         # end training ------------------------------------------------------------------
-    print("Done training for all models")
-    total_time = time.time() - total_training_time
+    print("\n\nDone training for all models")
+    total_time = time.time() - init_st
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print("Training time {}".format(total_time_str))
 
