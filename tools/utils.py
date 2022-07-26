@@ -34,7 +34,7 @@ def datastats(loader):
         num_batches += 1
 
     mean = channel_sum / num_batches
-    std = (channel_squared_sum / num_batches - mean ** 2) ** 0.5
+    std = (channel_squared_sum / num_batches - mean**2) ** 0.5
     print("The mean of dataset : ", mean)
     print("The std of dataset : ", std)
     return mean, std

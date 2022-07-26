@@ -62,9 +62,7 @@ if __name__ == "__main__":
                     A.RandomCrop(32, 32),
                 ]
             ),
-            A.CoarseDropout(
-                1,8,8, 1, 8, 8, fill_value=mean, mask_fill_value=None
-            ),
+            A.CoarseDropout(1, 8, 8, 1, 8, 8, fill_value=mean, mask_fill_value=None),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ]
@@ -115,6 +113,13 @@ if __name__ == "__main__":
             optimizer = optim.AdamW(
                 model.parameters(), lr=cfg.learning_rate, weight_decay=cfg.weight_decay
             )
+        elif cfg.optimizer == "rmsprop":
+            optimizer = optim.RMSprop(
+                model.parameters(),
+                lr=cfg.learning_rate,
+                momentum=cfg.momentum,
+                weight_decay=cfg.weight_decay,
+            )
         else:
             assert False, "Unknown optimizer, change training configuration"
 
@@ -127,7 +132,7 @@ if __name__ == "__main__":
                 )
             elif cfg.lr_scheduler == "reducelronpleatue":
                 lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                    optimizer, mode="min", patience=8, verbose=True
+                    optimizer, mode="min", patience=cfg.patience, verbose=True
                 )
 
             else:
@@ -161,18 +166,20 @@ if __name__ == "__main__":
             train_stats = train_one_epoch(
                 model,
                 optimizer,
-                None if cfg.lr_scheduler == "step" else lr_scheduler,
+                lr_scheduler if cfg.lr_scheduler == "cosine_annealing" else None,
                 criterion,
                 train_dataloader,
                 cfg.device,
             )
 
-            if cfg.lr_scheduler == "step":
-                lr_scheduler.step()
-
             test_stats = evaluate_one_epoch(
                 model, criterion, test_dataloader, cfg.device
             )
+
+            if not cfg.lr_scheduler == "cosine_annealing":
+                lr_scheduler.step(
+                    test_stats["loss"]
+                ) if cfg.lr_scheduler == "reducelronpleatue" else lr_scheduler.step()
 
             # storing last epoch model
             torch.save(
@@ -202,6 +209,7 @@ if __name__ == "__main__":
                     },
                     os.path.join(args.output_dir, model_name, f"{model_name}_best.pt"),
                 )
+                print("Model Saved")
             else:
                 print("Validation loss did not improve from ", best_loss)
 

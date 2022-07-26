@@ -16,3 +16,4 @@ class TrainingConfigurations(EasyDict):
     min_lr = 1e-2
     lr_drop = None
     T_max = 500
+    patience = 6
