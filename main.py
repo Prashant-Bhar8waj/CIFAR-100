@@ -151,7 +151,11 @@ if __name__ == "__main__":
             lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
             args.start_epoch = checkpoint["epoch"] + 1
 
-        best_loss = best_checkpoint["best_loss"] if args.resume and model_name in history.keys() else np.inf
+        best_loss = (
+            best_checkpoint["best_loss"]
+            if args.resume and model_name in history.keys()
+            else np.inf
+        )
         if not args.resume or model_name not in history.keys():
             history[model_name] = {"train": [], "test": []}
 
@@ -247,7 +251,5 @@ if __name__ == "__main__":
 
 
 """ TODO
-
-add models 
 grad cam
 """
