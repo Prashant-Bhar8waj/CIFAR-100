@@ -91,10 +91,6 @@ if __name__ == "__main__":
         ):
             print("Already trained skipping ", model_name)
             continue
-        elif not args.resume or model_name not in history.keys():
-            history[model_name] = {"train": [], "test": []}
-
-        # print(f"\nInitiating training for {model_name}")
 
         if not os.path.exists(os.path.join(args.output_dir, model_name)):
             os.mkdir(os.path.join(args.output_dir, model_name))
@@ -140,7 +136,7 @@ if __name__ == "__main__":
         else:
             lr_scheduler = None
 
-        if args.resume:
+        if args.resume and model_name in history.keys():
             checkpoint = torch.load(
                 os.path.join(args.output_dir, model_name, f"{model_name}_last.pt"),
                 map_location="cpu",
@@ -153,12 +149,16 @@ if __name__ == "__main__":
             model.load_state_dict(checkpoint["model"])
             optimizer.load_state_dict(checkpoint["optimizer"])
             lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
-            args.start_epoch = checkpoint["epoch"]
+            args.start_epoch = checkpoint["epoch"] + 1
+
+        best_loss = best_checkpoint["best_loss"] if args.resume and model_name in history.keys() else np.inf
+        if not args.resume or model_name not in history.keys():
+            history[model_name] = {"train": [], "test": []}
 
         print(optimizer, lr_scheduler)
         print(f"\n-------------- STARTING TRAINING {model_name} --------------")
+
         st = time.time()
-        best_loss = best_checkpoint["best_loss"] if args.resume else np.inf
         # epoch ------------------------------------------------------------------
         for epoch in range(args.start_epoch, cfg.epochs + 1):
             print("Epoch #{}".format(epoch))
