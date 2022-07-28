@@ -8,4 +8,5 @@ tmp.py
 .vscode
 dataset/cifar-100-python
 *gz
-
+*.pt
+*.json
