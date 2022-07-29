@@ -134,11 +134,14 @@ if __name__ == "__main__":
         rt = reshape_transform if model_name == "swintransformer" else None
         cam_algorithm = GradCAM
         fig, axs = plt.subplots(5, 3, sharex=True, sharey=True, figsize=(40, 25))
+        fig.tight_layout()
+
         for i in range(5):
             im = images[i]
             axs[i, 0].imshow(im)
             axs[i, 0].axis("off")
-            axs[i, 0].set_title("Image")
+            if i==0:
+                axs[i, 0].set_title("Image")
 
             rgb_img = np.float32(im) / 255
             input_tensor = preprocess_image(
@@ -150,13 +153,15 @@ if __name__ == "__main__":
             )
             axs[i, 1].imshow(cam_image)
             axs[i, 1].axis("off")
-            axs[i, 1].set_title("Middel layer")
+            if i==0:
+                axs[i, 1].set_title("Middel layer")
 
             cam_image = cam_results(
                 model, cam_algorithm, [target_layers[model_name][1]], input_tensor, rt
             )
             axs[i, 2].imshow(cam_image)
             axs[i, 2].axis("off")
-            axs[i, 2].set_title("Last layer")
+            if i==0:
+                axs[i, 2].set_title("Last layer")
 
         plt.show()
