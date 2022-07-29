@@ -21,7 +21,7 @@ from tools.utils import set_seed, datastats, store_stats
 
 
 def get_args_parser():
-    parser = argparse.ArgumentParser("Set transformer detector", add_help=False)
+    parser = argparse.ArgumentParser("Set train args", add_help=False)
     parser.add_argument("--resume", action="store_true", help="resume from checkpoint")
     parser.add_argument("--output_dir", default="", help="path where to save")
     parser.add_argument(
