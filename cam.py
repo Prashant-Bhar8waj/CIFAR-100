@@ -157,7 +157,7 @@ if __name__ == "__main__":
                 axs[i, 1].set_title("Middel layer")
 
             cam_image = cam_results(
-                model, cam_algorithm, [target_layers[model_name][1]], input_tensor, rt
+                model, cam_algorithm, [target_layers[model_name][1]], input_tensor
             )
             axs[i, 2].imshow(cam_image)
             axs[i, 2].axis("off")
