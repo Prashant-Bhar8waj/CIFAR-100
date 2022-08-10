@@ -10,11 +10,8 @@ from config import TrainingConfigurations
 from dataset.cifar100 import download_data
 from models import model_dict
 from tools.pytorch_grad_cam import GradCAM
-from tools.pytorch_grad_cam.cam_utils.image import (
-    deprocess_image,
-    preprocess_image,
-    show_cam_on_image,
-)
+from tools.pytorch_grad_cam.cam_utils.image import (deprocess_image, preprocess_image,
+                                                    show_cam_on_image)
 
 
 def get_args_parser():
